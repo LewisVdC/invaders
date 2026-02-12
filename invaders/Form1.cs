@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -53,6 +54,9 @@ namespace invaders
         int rndscreenvalue;
         Random poweruptype;
         int poweruptypevalue;
+        int playerlives = 3;
+        int enemylives = 3;
+        int gameover = 0;
 
         // set this to 0
         int powerupdebug = 0;
@@ -67,7 +71,7 @@ namespace invaders
                 + "\r Green: Get a shield for 5 seconds "
                 + "\r Red: Get infinite ammo for 5 seconds"
                 + "\r Purple: Lasers are homing for 5 seconds"
-                + "\r Light blue: idk twin";
+                + "\r Light blue: Fire bombs for 5 seconds";
             debuglabel.Text = "";
 
             me = new player(
@@ -103,6 +107,20 @@ namespace invaders
 
         private void timer1_Tick(object sender, EventArgs e)
         {
+            if (enemylives == 0)
+            {
+                gameover = 1;
+                gametimer.Stop();
+                paused = 1;
+                gamestart.Text = "YOU WIN" + "\npress play to play again";
+            }
+            if (playerlives == 0)
+            {
+                gameover = 1;
+                gametimer.Stop();
+                paused = 1;
+                gamestart.Text = "YOU LOSE" + "\npress play to play again";
+            }
             if (powerupdebug == 1 && mealive == 1)
             {
                 debuglabel.Text =
@@ -111,7 +129,9 @@ namespace invaders
                     + "\ninfammotimer: "
                     + me.getinfammotimer()
                     + "\ninvincibilitytimer: "
-                    + me.getinvincibilitytimer();
+                    + me.getinvincibilitytimer()
+                    + "\nexplosivetimer: "
+                    + me.getexplosivetimer();
             }
             else
             {
@@ -145,6 +165,7 @@ namespace invaders
                 }
 
                 pictureBox1.Invalidate();
+                pictureBox2.Invalidate();
 
                 foreach (var shot in shots.ToList())
                 {
@@ -161,6 +182,7 @@ namespace invaders
                             */
                             evil.hide();
                             shot.goaway();
+                            enemylives--;
                         }
                     }
                 }
@@ -172,6 +194,12 @@ namespace invaders
                     evil.levelup();
                     enemyalive = 1;
                     deathtimer = 0;
+                    if (gameover == 2)
+                    {
+                        gameover = 0;
+                        mealive = 0;
+                        deathtimer = 151;
+                    }
                 }
                 if (mealive == 1)
                 {
@@ -196,6 +224,7 @@ namespace invaders
                                 //bomb2.goaway();
                                 // not anymore!
                             }
+                            playerlives--;
                         }
                     }
                 }
@@ -224,6 +253,7 @@ namespace invaders
                             else if (powerup.gettype() == 4)
                             {
                                 // yea bro idk
+                                me.explode();
                             }
 
                             powerups.Remove(powerup);
@@ -235,6 +265,7 @@ namespace invaders
                 {
                     bombs.Clear();
                     bombtimer = 0;
+                    spawn = 0;
                     me = new player(
                         pictureBox1.Width / 2,
                         pictureBox1.Height - 100,
@@ -340,7 +371,22 @@ namespace invaders
         private void pause_Click(object sender, EventArgs e)
         {
             gamestart.Text = "";
-            if (paused == 0)
+            if (gameover == 1)
+            {
+                gametimer.Start();
+                paused = 0;
+                gameover = 2;
+                bombs.Clear();
+                evil.hide();
+                evil.unhide();
+                mealive = 0;
+                deathtimer = 150; // let player respawn naturally
+                playerlives = 3;
+                enemylives = 3;
+                powerups.Clear();
+                shots.Clear();
+            }
+            else if (paused == 0)
             {
                 gametimer.Stop();
                 paused = 1;
@@ -359,12 +405,13 @@ namespace invaders
 
         private void pictureBox1_Paint(object sender, PaintEventArgs e)
         {
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             /*if (bullet == 1)
             {
                 shot.go(e.Graphics);
             }*/
 
-            foreach (var shot in shots)
+            foreach (var shot in shots.ToList())
             {
                 if (shot.getY() > 0)
                 {
@@ -381,19 +428,30 @@ namespace invaders
                                     * 180.0
                                     / Math.PI
                                 ),
-                                0
+                                0,
+                                me.getexplosivetimer()
                             // look towards something // uum
                             );
                         }
                         else
                         {
-                            shot.go(e.Graphics, 0, 1);
+                            shot.go(e.Graphics, 0, 1, me.getexplosivetimer());
                         }
                     }
-
+                    if (shot.getexplode() > 100)
+                    {
+                        shots.Remove(shot);
+                    }
                     for (int i = -50; i < 50; i++)
                     {
                         danger.Add(shot.getX() + i);
+                    }
+                    if (shot.getexplode() != 0)
+                    {
+                        for (int i = -100; i < 100; i++)
+                        {
+                            danger.Add(shot.getX() + i);
+                        }
                     }
                 }
             }
@@ -435,6 +493,61 @@ namespace invaders
                 shot = null;
                 shot = new laser(me.getX(), me.getY(), 25, 25, Color.Goldenrod);
             }*/
+        }
+
+        private void pictureBox2_Paint(object sender, PaintEventArgs e)
+        {
+            // ahem
+
+            Graphics graphics = e.Graphics;
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+            int width = pictureBox2.Width;
+            int height = pictureBox2.Height;
+            if (playerlives >= 1)
+            {
+                DrawHeart(e.Graphics, 50, 50, 40);
+            }
+            if (playerlives >= 2)
+            {
+                DrawHeart(e.Graphics, 150, 50, 40);
+            }
+            if (playerlives >= 3)
+            {
+                DrawHeart(e.Graphics, 250, 50, 40);
+            }
+            if (enemylives >= 1)
+            {
+                DrawHeart(e.Graphics, 50 + width - 300, 50, 40);
+            }
+            if (enemylives >= 2)
+            {
+                DrawHeart(e.Graphics, 150 + width - 300, 50, 40);
+            }
+            if (enemylives >= 3)
+            {
+                DrawHeart(e.Graphics, 250 + width - 300, 50, 40);
+            }
+        }
+
+        private void DrawHeart(Graphics graphics, float centerX, float centerY, float size)
+        {
+            List<PointF> points = new List<PointF>();
+
+            for (int angle = 0; angle < 360; angle++)
+            {
+                double t = angle * Math.PI / 180;
+
+                double x = 16 * Math.Pow(Math.Sin(t), 3);
+                double y =
+                    13 * Math.Cos(t) - 5 * Math.Cos(2 * t) - 2 * Math.Cos(3 * t) - Math.Cos(4 * t);
+
+                points.Add(
+                    new PointF(centerX + (float)(x * size / 16), centerY - (float)(y * size / 16))
+                );
+            }
+
+            graphics.FillPolygon(Brushes.Red, points.ToArray());
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)

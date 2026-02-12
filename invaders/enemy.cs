@@ -182,29 +182,29 @@ namespace invaders
                 }
                 if (safe == 1)
                 {
-                    Console.Write("doesnt contain, go to ");
-                    Console.WriteLine(playery);
+                    //Console.Write("doesnt contain, go to ");
+                    //Console.WriteLine(playery);
                     destinationposition = playery;
                 }
             }
             else if (!uhoh.Contains(y))
             {
-                Console.Write("does contain, changing to ");
-                Console.WriteLine(x);
+                //Console.Write("does contain, changing to ");
+                //Console.WriteLine(x);
                 destinationposition = x;
                 while (uhoh.Contains(destinationposition))
                 {
                     if (x < screenwidth / 2)
                     {
-                        Console.Write("does contain, changing to ");
+                        //Console.Write("does contain, changing to ");
                         destinationposition--;
-                        Console.WriteLine(destinationposition);
+                        //Console.WriteLine(destinationposition);
                     }
                     else
                     {
-                        Console.Write("does contain, changing to ");
+                        //Console.Write("does contain, changing to ");
                         destinationposition++;
-                        Console.WriteLine(destinationposition);
+                        //Console.WriteLine(destinationposition);
                     }
                 }
             }
@@ -229,6 +229,10 @@ namespace invaders
             y += 100000;
         }
 
-        public void unhide() { }
+        public void unhide()
+        {
+            x = spawnx;
+            y = spawny;
+        }
     }
 }

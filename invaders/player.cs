@@ -27,6 +27,7 @@ namespace invaders
         private int infiniteammotimer = 499;
         private int aimbottimer = 500;
         private int firstframe = 1;
+        private int explosivetimer = 500;
 
         public player(
             int startX,
@@ -60,6 +61,7 @@ namespace invaders
         {
             invincibilitytimer++;
             aimbottimer++;
+            explosivetimer++;
 
             if (x < 0 + size / 2)
             {
@@ -206,6 +208,11 @@ namespace invaders
             return invincibilitytimer;
         }
 
+        public int getexplosivetimer()
+        {
+            return explosivetimer;
+        }
+
         public Rectangle Hitbox
         {
             get
@@ -243,6 +250,11 @@ namespace invaders
         public void aimbot()
         {
             aimbottimer = 0;
+        }
+
+        public void explode()
+        {
+            explosivetimer = 0;
         }
     }
 }

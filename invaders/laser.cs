@@ -20,6 +20,10 @@ namespace invaders
 
         private int ox,
             oy;
+        int shouldiexplode = 0;
+        int explosivepower = 5;
+        int exploded = 0;
+        int explosiontimer;
 
         public laser(int startX, int startY, int lasersize, int laserspeed, Color lasercolor)
         {
@@ -33,9 +37,8 @@ namespace invaders
             speed = laserspeed;
         }
 
-        public void go(Graphics g, int angle, int ghosting) // declare ghosting here bc my god it does not work
+        public void go(Graphics g, int angle, int ghosting, int explode) // declare ghosting here bc my god it does not work
         {
-            Console.WriteLine("go!! angle:" + angle + "ghosting:" + ghosting);
             if (angle != 0)
             {
                 float cx = Hitbox.X + Hitbox.Width / 2f;
@@ -73,7 +76,50 @@ namespace invaders
             {
                 g.ResetTransform();
             }
-            g.DrawRectangle(pen, Hitbox);
+            //g.DrawRectangle(pen, Hitbox);
+            //Console.WriteLine(explode);
+            if (explode < 500 || shouldiexplode == 1)
+            {
+                //Console.WriteLine("1");
+                shouldiexplode = 1;
+                if (y < 100)
+                {
+                    exploded = 1;
+                    //Console.WriteLine("2");
+                }
+            }
+            if (exploded == 1)
+            {
+                explosiontimer++;
+                y = 100;
+                Brush explodebrushouter = new SolidBrush(Color.Red);
+                Brush explodebrushmid = new SolidBrush(Color.OrangeRed);
+                Brush explodebrushinner = new SolidBrush(Color.Yellow);
+                FillEllipseCentered(
+                    explodebrushouter,
+                    x - size / 2,
+                    y - size / 2,
+                    size * explosivepower,
+                    size * explosivepower,
+                    g
+                );
+                FillEllipseCentered(
+                    explodebrushmid,
+                    x - size / 2,
+                    y - size / 2,
+                    (int)(size * explosivepower / 1.5),
+                    (int)(size * explosivepower / 1.5),
+                    g
+                );
+                FillEllipseCentered(
+                    explodebrushinner,
+                    x - size / 2,
+                    y - size / 2,
+                    size * explosivepower / 3,
+                    size * explosivepower / 3,
+                    g
+                );
+            }
         }
 
         public void tpplayer(int tx, int ty)
@@ -94,13 +140,58 @@ namespace invaders
 
         public Rectangle Hitbox
         {
-            get { return new Rectangle(x - size / 4, y - size / 2, size / 2, size * 2); }
+            get
+            {
+
+                if (exploded == 0)
+                {
+                    return new Rectangle(x - size / 4, y - size / 2, size / 2, size * 2);
+                }
+                else
+                {
+                    return new Rectangle(
+                        x - (size * explosivepower / 2) - (size / 2),
+                        y - (size) * 2,
+                        size * explosivepower,
+                        size
+                    );
+                }
+            }
         }
 
         public void goaway()
         {
             x += 10000;
             y += 10000;
+        }
+
+        private void DrawEllipseCentered(
+            Pen pen,
+            int centerx,
+            int centery,
+            int width,
+            int height,
+            Graphics g
+        )
+        {
+            g.DrawEllipse(pen, centerx - width / 2, centery - height / 2, width, height);
+        }
+
+        private void FillEllipseCentered(
+            Brush brush,
+            int centerx,
+            int centery,
+            int width,
+            int height,
+            Graphics g
+        )
+        {
+            g.FillEllipse(brush, centerx - width / 2, centery - height / 2, width, height);
+        }
+
+        public int getexplode()
+        {
+            return explosiontimer;
         }
     }
 }

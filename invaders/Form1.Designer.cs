@@ -34,7 +34,9 @@
             this.pause = new System.Windows.Forms.Button();
             this.gamestart = new System.Windows.Forms.Label();
             this.debuglabel = new System.Windows.Forms.Label();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.SuspendLayout();
             // 
             // pictureBox1
@@ -82,11 +84,22 @@
             this.debuglabel.TabIndex = 3;
             this.debuglabel.Text = "if you can read this it failed to load";
             // 
+            // pictureBox2
+            // 
+            this.pictureBox2.Location = new System.Drawing.Point(12, 955);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(1676, 92);
+            this.pictureBox2.TabIndex = 4;
+            this.pictureBox2.TabStop = false;
+            this.pictureBox2.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox2_Paint);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1700, 961);
+            this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.ClientSize = new System.Drawing.Size(1700, 1059);
+            this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.debuglabel);
             this.Controls.Add(this.gamestart);
             this.Controls.Add(this.pause);
@@ -98,6 +111,7 @@
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.Form1_KeyUp);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -110,6 +124,7 @@
         private System.Windows.Forms.Button pause;
         private System.Windows.Forms.Label gamestart;
         private System.Windows.Forms.Label debuglabel;
+        private System.Windows.Forms.PictureBox pictureBox2;
     }
 }
 
