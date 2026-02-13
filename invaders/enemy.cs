@@ -154,7 +154,7 @@ namespace invaders
             get { return new Rectangle(x - size / 2, y - size / 2, size, size); }
         }
 
-        public void dodge(List<int> uhoh, int playery)
+        /*public void dodgeold(List<int> uhoh, int playery)
         {
             // todo make this mf less greedy
             if (!uhoh.Contains(playery))
@@ -208,6 +208,92 @@ namespace invaders
                     }
                 }
             }
+        }*/
+        // do nit use
+
+        public void dodge(List<int> uhoh, int playerx)
+        {
+            // if theres no lasers just go for it
+            if (uhoh.Count == 0)
+            {
+                destinationposition = playerx;
+                return;
+            }
+
+            // check if player position is safe
+            if (checkposition(playerx, uhoh))
+            {
+                destinationposition = playerx;
+                return;
+            }
+
+            // find gap if not
+            int safespot = findsafespot(uhoh);
+            destinationposition = safespot;
+        }
+
+        private bool checkposition(int xposition, List<int> uhoh)
+        {
+            int safe = 50; // safety margin around bullets // this might be stupid?
+
+            for (int checkx = -safe; checkx <= xposition + safe; checkx++)
+            {
+                if (uhoh.Contains(checkx))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private int findsafespot(List<int> uhoh)
+        {
+            if (uhoh.Count == 0)
+                return x;
+
+            uhoh = uhoh.OrderBy(d => d).ToList();
+
+            int lagestgapsize = 0;
+            int largestgapcenter = x; // default to not doing anything
+
+            // check first gap
+            if (uhoh.First() > 0)
+            {
+                int gapsize = uhoh.First();
+                if (gapsize > lagestgapsize)
+                {
+                    lagestgapsize = gapsize;
+                    largestgapcenter = uhoh.First() / 2;
+                }
+            }
+
+            // check gaps between danger zones // kinda useless most of the time?
+            for (int i = 0; i < uhoh.Count - 1; i++)
+            {
+                int gapstart = uhoh[i];
+                int gapend = uhoh[i + 1];
+                int gapsize = gapend - gapstart;
+
+                if (gapsize > lagestgapsize)
+                {
+                    lagestgapsize = gapsize;
+                    largestgapcenter = (gapstart + gapend) / 2;
+                }
+            }
+
+            // check gap after last danger zone
+            if (uhoh.Last() < screenwidth)
+            {
+                int gapsize = screenwidth - uhoh.Last();
+                if (gapsize > lagestgapsize)
+                {
+                    lagestgapsize = gapsize;
+                    largestgapcenter = uhoh.Last() + (gapsize / 2);
+                }
+            }
+
+            // trap him
+            return Math.Max(0, Math.Min(screenwidth, largestgapcenter));
         }
 
         public int getDestination()
@@ -226,7 +312,7 @@ namespace invaders
         public void hide()
         {
             x += 100000;
-            y += 100000;
+            y += 100000; // am i fr
         }
 
         public void unhide()
